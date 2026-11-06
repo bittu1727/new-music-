@@ -68,59 +68,59 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
 
     private val initialSeedTracks = listOf(
         Song(
-            id = "audius_AK3w5q0",
-            title = "140 Mix (Audius Exclusive)",
-            artist = "iLLPeTiLL",
-            album = "Online Charts",
-            durationMs = 210000L,
-            artworkUrl = "https://i.ytimg.com/vi/AK3w5q0/hqdefault.jpg",
-            audioStreamUrl = "https://api.audius.co/v1/tracks/AK3w5q0/stream?app_name=AuraMusic",
+            id = "saavn_apna_bana_le",
+            title = "Apna Bana Le",
+            artist = "Arijit Singh, Sachin-Jigar",
+            album = "Trending Hits",
+            durationMs = 261000L,
+            artworkUrl = "https://c.saavncdn.com/675/Trending-Love-Songs-Hindi-2022-20221208074614-500x500.jpg",
+            audioStreamUrl = "https://aac.saavncdn.com/675/1456dc2903d0fb4465d2d2904008803a_320.mp4",
             source = SongSource.GOOGLE_SEARCH,
-            sourceId = "AK3w5q0"
+            sourceId = "apna_bana_le"
         ),
         Song(
-            id = "audius_5QW2Y",
-            title = "Midnight City (feat. chirrrex)",
-            artist = "c152",
-            album = "Online Music",
-            durationMs = 244000L,
-            artworkUrl = "https://i.ytimg.com/vi/5QW2Y/hqdefault.jpg",
-            audioStreamUrl = "https://api.audius.co/v1/tracks/5QW2Y/stream?app_name=AuraMusic",
+            id = "saavn_kesariya",
+            title = "Kesariya",
+            artist = "Pritam, Arijit Singh",
+            album = "Brahmastra",
+            durationMs = 268000L,
+            artworkUrl = "https://c.saavncdn.com/871/Brahmastra-Original-Motion-Picture-Soundtrack-Hindi-2022-20221006180327-500x500.jpg",
+            audioStreamUrl = "https://aac.saavncdn.com/871/c2febd353f3a076a406fa37510f31f9f_320.mp4",
             source = SongSource.GOOGLE_SEARCH,
-            sourceId = "5QW2Y"
+            sourceId = "kesariya"
         ),
         Song(
-            id = "audius_87GrbyW",
-            title = "Star Hunter (Cinematic Synthwave)",
-            artist = "Blythely",
-            album = "Synthwave",
-            durationMs = 195000L,
-            artworkUrl = "https://i.ytimg.com/vi/87GrbyW/hqdefault.jpg",
-            audioStreamUrl = "https://api.audius.co/v1/tracks/87GrbyW/stream?app_name=AuraMusic",
+            id = "saavn_believer",
+            title = "Believer",
+            artist = "Imagine Dragons",
+            album = "Evolve",
+            durationMs = 204000L,
+            artworkUrl = "https://c.saavncdn.com/078/AiSh-The-Covers-Collection-Hindi-2022-20260710184759-500x500.jpg",
+            audioStreamUrl = "https://aac.saavncdn.com/078/691b7984c2ad4ea849a335c966b84fe2_320.mp4",
             source = SongSource.GOOGLE_SEARCH,
-            sourceId = "87GrbyW"
+            sourceId = "believer"
         ),
         Song(
-            id = "audius_Ma6qb3x",
-            title = "Deadly Combo [DISKADE Bootleg]",
-            artist = "DISKADE",
-            album = "Electronic",
-            durationMs = 180000L,
-            artworkUrl = "https://i.ytimg.com/vi/Ma6qb3x/hqdefault.jpg",
-            audioStreamUrl = "https://api.audius.co/v1/tracks/Ma6qb3x/stream?app_name=AuraMusic",
+            id = "saavn_shape_of_you",
+            title = "Shape Of You",
+            artist = "Ed Sheeran",
+            album = "Divide",
+            durationMs = 233000L,
+            artworkUrl = "https://c.saavncdn.com/443/Shape-Of-You-English-2023-20230504142417-500x500.jpg",
+            audioStreamUrl = "https://aac.saavncdn.com/443/d9b115620457a6ddfda9955ac17142c8_320.mp4",
             source = SongSource.GOOGLE_SEARCH,
-            sourceId = "Ma6qb3x"
+            sourceId = "shape_of_you"
         ),
         Song(
-            id = "audius_y8rNVYP",
-            title = "Atmospheric Soundscapes",
-            artist = "False Dawn",
-            album = "Ambient",
-            durationMs = 220000L,
-            artworkUrl = "https://i.ytimg.com/vi/y8rNVYP/hqdefault.jpg",
-            audioStreamUrl = "https://api.audius.co/v1/tracks/y8rNVYP/stream?app_name=AuraMusic",
+            id = "saavn_blinding_lights",
+            title = "Blinding Lights",
+            artist = "The Weeknd",
+            album = "After Hours",
+            durationMs = 200000L,
+            artworkUrl = "https://c.saavncdn.com/764/Blinding-Lights-English-2020-20200424164319-500x500.jpg",
+            audioStreamUrl = "https://aac.saavncdn.com/764/415b88a7ed47b126e5f1806789929fb7_320.mp4",
             source = SongSource.GOOGLE_SEARCH,
-            sourceId = "y8rNVYP"
+            sourceId = "blinding_lights"
         )
     )
 
