@@ -23,7 +23,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MusicNotificationManager(private val context: Context) {
+class MusicNotificationManager(
+    private val context: Context,
+    private val getMediaSession: () -> androidx.media3.session.MediaSession? = { null }
+) {
 
     companion object {
         const val CHANNEL_ID = "aura_music_playback_channel"
@@ -138,6 +141,8 @@ class MusicNotificationManager(private val context: Context) {
             .setOngoing(isPlaying)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
+            .setColor(0xFFFF5722.toInt())
+            .setColorized(true)
             .addAction(R.drawable.ic_notif_previous, "Previous", prevPendingIntent)
             .addAction(
                 if (isPlaying) R.drawable.ic_notif_pause else R.drawable.ic_notif_play,
@@ -149,6 +154,18 @@ class MusicNotificationManager(private val context: Context) {
 
         if (artworkBitmap != null) {
             builder.setLargeIcon(artworkBitmap)
+        }
+
+        val session = getMediaSession()
+        if (session != null) {
+            try {
+                builder.setStyle(
+                    androidx.media3.session.MediaStyleNotificationHelper.MediaStyle(session)
+                        .setShowActionsInCompactView(0, 1, 2)
+                )
+            } catch (e: Exception) {
+                Log.w("MusicNotification", "MediaStyle error: ${e.message}")
+            }
         }
 
         return builder.build()

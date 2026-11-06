@@ -98,8 +98,8 @@ class AudioPlayerManager(
     var onSongPlayed: ((Song) -> Unit)? = null
 
     private var retryCount = 0
-    private val notificationManager = MusicNotificationManager(context)
     private var mediaSession: androidx.media3.session.MediaSession? = null
+    private val notificationManager = MusicNotificationManager(context) { mediaSession }
 
     init {
         MusicPlaybackService.playerManager = this

@@ -1,16 +1,12 @@
 package com.example.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -27,7 +23,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -41,7 +36,6 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,9 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -67,11 +59,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.data.model.Song
-import com.example.ui.theme.AccentCyan
-import com.example.ui.theme.AccentPink
-import com.example.ui.theme.AccentViolet
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.random.Random
+
+// Signature iOS / Dynamic Island Coral Orange Color
+val DynamicIslandCoral = Color(0xFFFF5722)
 
 @Composable
 fun DynamicIsland(
@@ -102,7 +95,7 @@ fun DynamicIsland(
     }
 
     val islandWidth by animateDpAsState(
-        targetValue = if (isExpanded) 340.dp else 190.dp,
+        targetValue = if (isExpanded) 340.dp else 208.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMediumLow
@@ -111,7 +104,7 @@ fun DynamicIsland(
     )
 
     val islandHeight by animateDpAsState(
-        targetValue = if (isExpanded) 152.dp else 38.dp,
+        targetValue = if (isExpanded) 154.dp else 37.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMediumLow
@@ -125,8 +118,7 @@ fun DynamicIsland(
     )
 
     Box(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.TopCenter
     ) {
         Surface(
@@ -134,22 +126,16 @@ fun DynamicIsland(
                 .width(islandWidth)
                 .height(islandHeight)
                 .shadow(
-                    elevation = if (isExpanded) 16.dp else 8.dp,
+                    elevation = if (isExpanded) 18.dp else 8.dp,
                     shape = RoundedCornerShape(cornerRadius),
                     ambientColor = Color.Black,
-                    spotColor = AccentViolet.copy(alpha = 0.4f)
+                    spotColor = DynamicIslandCoral.copy(alpha = 0.35f)
                 )
                 .clip(RoundedCornerShape(cornerRadius))
-                .background(Color(0xFF0A0A10))
+                .background(Color.Black)
                 .border(
-                    width = 1.dp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = if (isExpanded) 0.25f else 0.18f),
-                            AccentViolet.copy(alpha = 0.2f),
-                            Color.White.copy(alpha = 0.05f)
-                        )
-                    ),
+                    width = 0.8.dp,
+                    color = Color(0x38FFFFFF),
                     shape = RoundedCornerShape(cornerRadius)
                 )
                 .clickable(
@@ -159,7 +145,7 @@ fun DynamicIsland(
                     isExpanded = !isExpanded
                 }
                 .testTag(if (isExpanded) "dynamic_island_expanded" else "dynamic_island_pill"),
-            color = Color(0xFF0A0A10),
+            color = Color.Black,
             shape = RoundedCornerShape(cornerRadius)
         ) {
             if (isExpanded) {
@@ -175,49 +161,42 @@ fun DynamicIsland(
                     onCollapse = { isExpanded = false }
                 )
             } else {
-                DynamicIslandCompactContent(
+                DynamicIslandScreenshotMatchContent(
                     song = song,
-                    isPlaying = isPlaying,
-                    onTogglePlayPause = onTogglePlayPause
+                    isPlaying = isPlaying
                 )
             }
         }
     }
 }
 
+/**
+ * Pixel-accurate implementation of the user's uploaded reference screenshot:
+ * - Jet black capsule pill
+ * - Squircle/rounded-square album cover on the left
+ * - Pure black empty center
+ * - 3 vertical bars + 2 dots in glowing Coral Orange on the right
+ */
 @Composable
-private fun DynamicIslandCompactContent(
+private fun DynamicIslandScreenshotMatchContent(
     song: Song,
-    isPlaying: Boolean,
-    onTogglePlayPause: () -> Unit
+    isPlaying: Boolean
 ) {
-    // Subtle rotation transition for thumbnail when playing
-    val infiniteTransition = rememberInfiniteTransition(label = "rotationTransition")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(12000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(38.dp)
-            .padding(horizontal = 7.dp),
+            .height(37.dp)
+            .padding(horizontal = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Left: Mini circular spinning artwork
+        // Left: Squircle Album Artwork (exact match to screenshot)
         Box(
             modifier = Modifier
-                .size(26.dp)
-                .clip(CircleShape)
-                .background(Color(0xFF1E1E28))
-                .border(0.8.dp, AccentViolet.copy(alpha = 0.5f), CircleShape),
+                .size(27.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF161616))
+                .border(0.6.dp, Color(0x22FFFFFF), RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
             if (!song.artworkUrl.isNullOrEmpty()) {
@@ -226,72 +205,137 @@ private fun DynamicIslandCompactContent(
                         .data(song.artworkUrl)
                         .crossfade(true)
                         .build(),
-                    contentDescription = null,
+                    contentDescription = "Cover",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(26.dp)
-                        .clip(CircleShape)
-                        .rotate(if (isPlaying) rotation else 0f)
+                        .size(27.dp)
+                        .clip(RoundedCornerShape(8.dp))
                 )
             } else {
                 Icon(
                     imageVector = Icons.Filled.MusicNote,
                     contentDescription = null,
-                    tint = AccentCyan,
-                    modifier = Modifier.size(14.dp)
+                    tint = DynamicIslandCoral,
+                    modifier = Modifier.size(15.dp)
                 )
             }
         }
 
-        // Center: Track title & compact waveform
-        Row(
+        // Center: Pure sleek black notch space
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Right: 3 vertical bars + 2 dots in vibrant coral orange
+        IosDynamicIslandWaveform(
+            isPlaying = isPlaying,
+            modifier = Modifier.padding(end = 4.dp),
+            color = DynamicIslandCoral
+        )
+    }
+}
+
+/**
+ * Signature iOS Waveform: 3 vertical rounded bars + 2 dots
+ */
+@Composable
+fun IosDynamicIslandWaveform(
+    isPlaying: Boolean,
+    modifier: Modifier = Modifier,
+    color: Color = DynamicIslandCoral
+) {
+    val bar1Anim = remember { Animatable(0.55f) }
+    val bar2Anim = remember { Animatable(0.92f) }
+    val bar3Anim = remember { Animatable(0.65f) }
+    val dotAlphaAnim = remember { Animatable(1f) }
+
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            launch {
+                bar1Anim.animateTo(
+                    targetValue = 0.28f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(260, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
+            launch {
+                bar2Anim.animateTo(
+                    targetValue = 0.42f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(330, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
+            launch {
+                bar3Anim.animateTo(
+                    targetValue = 0.32f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(290, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
+            launch {
+                dotAlphaAnim.animateTo(
+                    targetValue = 0.65f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(420, easing = LinearEasing),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
+        } else {
+            bar1Anim.animateTo(0.22f, tween(200))
+            bar2Anim.animateTo(0.22f, tween(200))
+            bar3Anim.animateTo(0.22f, tween(200))
+            dotAlphaAnim.animateTo(0.45f, tween(200))
+        }
+    }
+
+    Row(
+        modifier = modifier.height(20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.5.dp)
+    ) {
+        // Bar 1 (medium)
+        Box(
             modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = song.title,
-                color = Color.White,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false)
-            )
-        }
-
-        // Right: Mini dynamic waveform + micro play/pause
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            MiniEqualizerBars(
-                isPlaying = isPlaying,
-                modifier = Modifier.height(14.dp)
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(22.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onTogglePlayPause
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                    contentDescription = if (isPlaying) "Pause" else "Play",
-                    tint = Color.White,
-                    modifier = Modifier.size(13.dp)
-                )
-            }
-        }
+                .width(3.dp)
+                .height((16 * bar1Anim.value).coerceAtLeast(3f).dp)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(color)
+        )
+        // Bar 2 (tallest)
+        Box(
+            modifier = Modifier
+                .width(3.dp)
+                .height((20 * bar2Anim.value).coerceAtLeast(3f).dp)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(color)
+        )
+        // Bar 3 (medium-tall)
+        Box(
+            modifier = Modifier
+                .width(3.dp)
+                .height((17 * bar3Anim.value).coerceAtLeast(3f).dp)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(color)
+        )
+        // Dot 1
+        Box(
+            modifier = Modifier
+                .size(3.5.dp)
+                .clip(CircleShape)
+                .background(color.copy(alpha = dotAlphaAnim.value))
+        )
+        // Dot 2
+        Box(
+            modifier = Modifier
+                .size(3.5.dp)
+                .clip(CircleShape)
+                .background(color.copy(alpha = dotAlphaAnim.value))
+        )
     }
 }
 
@@ -313,7 +357,7 @@ private fun DynamicIslandExpandedContent(
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Top Row: Album art, Title, Artist, Collapse button
+        // Top Row: Squircle Album art, Title, Artist, Waveform & Collapse button
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -321,10 +365,10 @@ private fun DynamicIslandExpandedContent(
             // Artwork
             Box(
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1E1E28))
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                    .background(Color(0xFF1A1A22))
+                    .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(12.dp))
                     .clickable { onOpenFullPlayer() },
                 contentAlignment = Alignment.Center
             ) {
@@ -336,13 +380,15 @@ private fun DynamicIslandExpandedContent(
                             .build(),
                         contentDescription = "Album Art",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(46.dp)
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(12.dp))
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Filled.MusicNote,
                         contentDescription = null,
-                        tint = AccentViolet,
+                        tint = DynamicIslandCoral,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -375,14 +421,14 @@ private fun DynamicIslandExpandedContent(
                 )
             }
 
-            // Right icons: Waveform & Collapse button
+            // Right icons: Coral Waveform & Collapse button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                MiniEqualizerBars(
+                IosDynamicIslandWaveform(
                     isPlaying = isPlaying,
-                    modifier = Modifier.height(18.dp)
+                    color = DynamicIslandCoral
                 )
 
                 IconButton(
@@ -399,19 +445,23 @@ private fun DynamicIslandExpandedContent(
             }
         }
 
-        // Middle Row: Scrubbing progress bar
+        // Middle Row: Scrubbing progress bar in matching Coral Orange
         val progressFraction = if (durationMs > 0) {
             (progressMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f)
         } else 0f
 
-        Column(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+        ) {
             LinearProgressIndicator(
                 progress = { progressFraction },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(3.dp)
                     .clip(RoundedCornerShape(2.dp)),
-                color = AccentViolet,
+                color = DynamicIslandCoral,
                 trackColor = Color.White.copy(alpha = 0.15f)
             )
 
@@ -476,11 +526,7 @@ private fun DynamicIslandExpandedContent(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(CircleShape)
-                        .background(
-                            Brush.linearGradient(
-                                listOf(AccentViolet, AccentPink)
-                            )
-                        )
+                        .background(DynamicIslandCoral)
                         .clickable(onClick = onTogglePlayPause),
                     contentAlignment = Alignment.Center
                 ) {
@@ -507,48 +553,6 @@ private fun DynamicIslandExpandedContent(
 
             // Balanced spacing spacer
             Spacer(modifier = Modifier.size(32.dp))
-        }
-    }
-}
-
-@Composable
-fun MiniEqualizerBars(
-    isPlaying: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val barCount = 3
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        val colors = listOf(AccentCyan, AccentPink, AccentViolet)
-        for (i in 0 until barCount) {
-            val animHeight = remember { Animatable(0.2f) }
-
-            LaunchedEffect(isPlaying) {
-                if (isPlaying) {
-                    val target = 0.35f + Random.nextFloat() * 0.65f
-                    val duration = 220 + i * 110
-                    animHeight.animateTo(
-                        targetValue = target,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(duration, easing = FastOutSlowInEasing),
-                            repeatMode = RepeatMode.Reverse
-                        )
-                    )
-                } else {
-                    animHeight.animateTo(0.2f, tween(200))
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .width(2.5.dp)
-                    .height((18 * animHeight.value).dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(colors[i % colors.size])
-            )
         }
     }
 }
