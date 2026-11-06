@@ -98,8 +98,19 @@ class AudioPlayerManager(
     var onSongPlayed: ((Song) -> Unit)? = null
 
     private var retryCount = 0
+    private val notificationManager = MusicNotificationManager(context)
+    private var mediaSession: androidx.media3.session.MediaSession? = null
 
     init {
+        MusicPlaybackService.playerManager = this
+        MusicPlaybackService.notificationManager = notificationManager
+
+        try {
+            mediaSession = androidx.media3.session.MediaSession.Builder(context, exoPlayer).build()
+        } catch (e: Exception) {
+            Log.w("AudioPlayerManager", "MediaSession initialization: ${e.message}")
+        }
+
         exoPlayer.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 when (playbackState) {
@@ -118,6 +129,7 @@ class AudioPlayerManager(
                                 _currentSong.value = curr.copy(durationMs = dur)
                             }
                         }
+                        notificationManager.updateNotification(_currentSong.value, _isPlaying.value)
                     }
                     Player.STATE_ENDED -> {
                         _isBuffering.value = false
@@ -136,6 +148,8 @@ class AudioPlayerManager(
                 } else {
                     stopProgressTicker()
                 }
+                notificationManager.updateNotification(_currentSong.value, playing)
+                MusicPlaybackService.startOrUpdateService(context, _currentSong.value, playing)
             }
 
             override fun onPlayerError(error: PlaybackException) {
@@ -290,6 +304,9 @@ class AudioPlayerManager(
             }
             exoPlayer.prepare()
             exoPlayer.play()
+
+            notificationManager.updateNotification(song, true)
+            MusicPlaybackService.startOrUpdateService(context, song, true)
         } catch (e: Exception) {
             Log.e("AudioPlayerManager", "Failed to start playback: ${e.message}", e)
             _errorMessage.value = "Failed to load audio"
@@ -498,6 +515,13 @@ class AudioPlayerManager(
 
     fun release() {
         progressJob?.cancel()
+        notificationManager.cancelNotification()
+        MusicPlaybackService.stopService(context)
+        try {
+            mediaSession?.release()
+        } catch (e: Exception) {
+            Log.w("AudioPlayerManager", "MediaSession release: ${e.message}")
+        }
         exoPlayer.release()
     }
 }

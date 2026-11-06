@@ -60,7 +60,9 @@ import com.example.ui.theme.GlassWhite20
 @Composable
 fun SettingsScreen(
     isDarkTheme: Boolean,
+    isDynamicIslandEnabled: Boolean,
     onToggleTheme: () -> Unit,
+    onToggleDynamicIsland: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
     onClearListeningData: () -> Unit,
     modifier: Modifier = Modifier
@@ -92,15 +94,23 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        // Appearance
+        // Appearance & Dynamic Island
         item {
-            SectionHeader(title = "Appearance")
+            SectionHeader(title = "Appearance & Interface")
             SettingToggleRow(
                 icon = if (isDarkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
                 title = "Dark Theme",
                 subtitle = if (isDarkTheme) "Sophisticated obsidian night theme" else "Bright modern daytime theme",
                 checked = isDarkTheme,
                 onCheckedChange = { onToggleTheme() }
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            SettingToggleRow(
+                icon = Icons.Default.GraphicEq,
+                title = "Dynamic Island Overlay",
+                subtitle = "Floating interactive pill at top with audio wave, controls & expanded card",
+                checked = isDynamicIslandEnabled,
+                onCheckedChange = { onToggleDynamicIsland() }
             )
             Spacer(modifier = Modifier.height(16.dp))
         }

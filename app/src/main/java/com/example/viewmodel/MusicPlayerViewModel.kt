@@ -150,6 +150,14 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
     private val _isDarkTheme = MutableStateFlow(true)
     val isDarkTheme: StateFlow<Boolean> = _isDarkTheme.asStateFlow()
 
+    // Dynamic Island Display
+    private val _isDynamicIslandEnabled = MutableStateFlow(true)
+    val isDynamicIslandEnabled: StateFlow<Boolean> = _isDynamicIslandEnabled.asStateFlow()
+
+    fun toggleDynamicIsland() {
+        _isDynamicIslandEnabled.value = !_isDynamicIslandEnabled.value
+    }
+
     // Dialogs
     private val _addToPlaylistSong = MutableStateFlow<Song?>(null)
     val addToPlaylistSong: StateFlow<Song?> = _addToPlaylistSong.asStateFlow()

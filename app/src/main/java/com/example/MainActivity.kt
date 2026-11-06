@@ -1,9 +1,14 @@
 package com.example
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -18,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +43,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,11 +54,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.ui.components.AddToPlaylistDialog
 import com.example.ui.components.CreatePlaylistDialog
+import com.example.ui.components.DynamicIsland
 import com.example.ui.components.FullPlayerModal
 import com.example.ui.components.MiniPlayerBar
 import com.example.ui.screens.HomeScreen
@@ -130,10 +140,28 @@ fun MainAppContent(viewModel: MusicPlayerViewModel) {
 
     val isFullPlayerVisible by viewModel.isFullPlayerVisible.collectAsState()
     val isDarkTheme by viewModel.isDarkTheme.collectAsState()
+    val isDynamicIslandEnabled by viewModel.isDynamicIslandEnabled.collectAsState()
 
     val addToPlaylistSong by viewModel.addToPlaylistSong.collectAsState()
     val isCreatePlaylistDialogOpen by viewModel.isCreatePlaylistDialogOpen.collectAsState()
     var showPrivacyPolicy by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val notifPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { /* Handled gracefully */ }
+        )
+        LaunchedEffect(Unit) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -261,7 +289,9 @@ fun MainAppContent(viewModel: MusicPlayerViewModel) {
                     MainDestination.SETTINGS -> {
                         SettingsScreen(
                             isDarkTheme = isDarkTheme,
+                            isDynamicIslandEnabled = isDynamicIslandEnabled,
                             onToggleTheme = { viewModel.toggleTheme() },
+                            onToggleDynamicIsland = { viewModel.toggleDynamicIsland() },
                             onOpenPrivacyPolicy = { showPrivacyPolicy = true },
                             onClearListeningData = { viewModel.clearListeningHistory() }
                         )
@@ -341,6 +371,25 @@ fun MainAppContent(viewModel: MusicPlayerViewModel) {
         if (showPrivacyPolicy) {
             PrivacyPolicyDialog(
                 onDismiss = { showPrivacyPolicy = false }
+            )
+        }
+
+        // Dynamic Island Overlay (Top-center floating pill / card)
+        if (currentSong != null && !isFullPlayerVisible) {
+            DynamicIsland(
+                song = currentSong,
+                isPlaying = isPlaying,
+                progressMs = currentPositionMs,
+                durationMs = durationMs,
+                onTogglePlayPause = { viewModel.togglePlayPause() },
+                onSkipNext = { viewModel.skipToNext() },
+                onSkipPrevious = { viewModel.skipToPrevious() },
+                onOpenFullPlayer = { viewModel.setFullPlayerVisible(true) },
+                enabled = isDynamicIslandEnabled,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = 6.dp)
             )
         }
     }
