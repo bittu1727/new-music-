@@ -1,0 +1,6 @@
+{
+  "name": "Aura Music",
+  "description": "Sophisticated online music player with ad-free YouTube Music streaming, curated global charts, synced lyrics, and privacy protection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
